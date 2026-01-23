@@ -1,4 +1,4 @@
-name: PR Check
+name: Install
 
 on:
   workflow_call:
@@ -11,17 +11,16 @@ on:
       GH_TOKEN:
         required: true
 
-concurrency:
-  group: pr-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
   packages: read
 
 jobs:
-  pr:
+  install:
     runs-on: ubuntu-latest
+
+    outputs: 
+      artifact-name: node_modules
 
     steps:
       - name: Checkout code
@@ -34,16 +33,20 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: '@dignityfalconer'
 
+      - name: Cache npm 
+        uses: actions/cache@v4 
+        with: 
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+
       - name: Install dependencies
         run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-#     - name: Run lint
-#       run: npm run lint
-#
-#     - name: Run formatting
-#       run: npm run format
-#
-#     - name: Run unit test
-#       run: npm run test
+      - name: Upload node_modules
+        uses: actions/upload-artifact@v4
+        with:
+          name: node_modules
+          path: node_modules
+          retention-days: 1
