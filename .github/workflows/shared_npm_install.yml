@@ -48,5 +48,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: node_modules
-          path: node_modules
+          path: node_modules.tar.gz
           retention-days: 1
