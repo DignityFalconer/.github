@@ -2,11 +2,6 @@ name: Install
 
 on:
   workflow_call:
-    inputs: 
-      NODE_VERSION:
-        type: string
-        description: "Node version to use"
-        required: true
     secrets:
       GH_TOKEN:
         required: true
@@ -29,7 +24,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ inputs.NODE_VERSION }}
+          node-version-file: '.nvmrc'
           registry-url: https://npm.pkg.github.com
           scope: '@dignityfalconer'
       - run: node -v
