@@ -27,6 +27,9 @@ jobs:
         with:
           name: node_modules
 
+      - name: Extract node_modules
+        run: tar -xzf node_modules.tar.gz
+
 #    - name: Run lint
 #      run: npm run lint
 #
