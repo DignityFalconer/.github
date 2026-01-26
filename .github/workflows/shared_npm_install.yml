@@ -44,6 +44,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+      - name: Compress node_modules
+        run: tar -czf node_modules.tar.gz node_modules
+
       - name: Upload node_modules
         uses: actions/upload-artifact@v4
         with:
