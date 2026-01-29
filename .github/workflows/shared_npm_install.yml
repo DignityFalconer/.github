@@ -28,6 +28,7 @@ jobs:
         run: |
           if [[ -n "${{ secrets.FONTAWESOME_TOKEN }}" ]]; then
             echo "FONTAWESOME_TOKEN=${{ secrets.FONTAWESOME_TOKEN }}" >> "$GITHUB_ENV"
+            echo "✔ FONTAWESOME_TOKEN applied"
           fi
 
       - name: Set up Node
