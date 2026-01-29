@@ -3,8 +3,6 @@ name: Install
 on:
   workflow_call:
     secrets:
-      # GH_TOKEN:
-      #   required: true
       FONTAWESOME_TOKEN:
         required: false
 
@@ -26,10 +24,12 @@ jobs:
       - name: Apply environment variables
         shell: bash
         run: |
-          if [[ -n "${{ secrets.FONTAWESOME_TOKEN }}" ]]; then
-            echo "FONTAWESOME_TOKEN=${{ secrets.FONTAWESOME_TOKEN }}" >> "$GITHUB_ENV"
+          if [[ -n "${{ secrets.FONTAWESOME_TOKEN_SECRET }}" ]]; then
+            echo "FONTAWESOME_TOKEN=${{ secrets.FONTAWESOME_TOKEN_SECRET }}" >> "$GITHUB_ENV"
             echo "✔ FONTAWESOME_TOKEN applied"
           fi
+        env:
+          FONTAWESOME_TOKEN_SECRET: FONTAWESOME_TOKEN=${{ secrets.FONTAWESOME_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -49,7 +49,6 @@ jobs:
         run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Compress node_modules
         run: tar -czf node_modules.tar.gz node_modules
