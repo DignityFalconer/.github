@@ -2,13 +2,11 @@ name: Install
 
 on:
   workflow_call:
-    inputs: 
-      ENV_VARS:
-        type: string
-        required: false
     secrets:
       GH_TOKEN:
         required: true
+      FONTAWESOME_TOKEN:
+        required: false
 
 permissions:
   contents: read
@@ -26,9 +24,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Apply environment variables
-        if: ${{ inputs.ENV_VARS != '' }}
+        shell: bash
         run: |
-          printf '%s\n' "${{ inputs.ENV_VARS }}" >> "$GITHUB_ENV"
+          if [[ -n "${{ secrets.FONTAWESOME_TOKEN }}" ]]; then
+            echo "FONTAWESOME_TOKEN=${{ secrets.FONTAWESOME_TOKEN }}" >> "$GITHUB_ENV"
+          fi
 
       - name: Set up Node
         uses: actions/setup-node@v4
