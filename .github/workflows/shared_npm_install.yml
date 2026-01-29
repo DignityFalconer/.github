@@ -23,13 +23,13 @@ jobs:
 
       - name: Apply environment variables
         shell: bash
+        env:
+          FONTAWESOME_TOKEN_SECRET: ${{ secrets.FONTAWESOME_TOKEN }}
         run: |
-          if [[ -n "${{ secrets.FONTAWESOME_TOKEN_SECRET }}" ]]; then
-            echo "FONTAWESOME_TOKEN=${{ secrets.FONTAWESOME_TOKEN_SECRET }}" >> "$GITHUB_ENV"
+          if [[ -n "$FONTAWESOME_TOKEN_SECRET" ]]; then
+            echo "FONTAWESOME_TOKEN=$FONTAWESOME_TOKEN_SECRET" >> "$GITHUB_ENV"
             echo "✔ FONTAWESOME_TOKEN applied"
           fi
-        env:
-          FONTAWESOME_TOKEN_SECRET: FONTAWESOME_TOKEN=${{ secrets.FONTAWESOME_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
