@@ -2,6 +2,10 @@ name: Install
 
 on:
   workflow_call:
+    inputs: 
+      ENV_VARS:
+        type: string
+        required: false
     secrets:
       GH_TOKEN:
         required: true
@@ -20,6 +24,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Apply environment variables
+        if: ${{ inputs.ENV_VARS != '' }}
+        run: |
+          printf '%s\n' "${{ inputs.ENV_VARS }}" >> "$GITHUB_ENV"
 
       - name: Set up Node
         uses: actions/setup-node@v4
