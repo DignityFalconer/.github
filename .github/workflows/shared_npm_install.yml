@@ -2,6 +2,12 @@ name: Install
 
 on:
   workflow_call:
+    inputs:
+      BASE_DIR:
+        description: "Optional base directory to run commands in"
+        required: false
+        type: string
+        default: "."
     secrets:
       FONTAWESOME_TOKEN:
         required: false
@@ -31,28 +37,32 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ${{ format('{0}/.nvmrc', inputs.BASE_DIR) }}
           registry-url: https://npm.pkg.github.com
           scope: '@dignityfalconer'
+
       - run: node -v
+        working-directory: ${{ inputs.BASE_DIR }}
 
       - name: Cache npm 
         uses: actions/cache@v4 
         with: 
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles(format('{0}/package-lock.json', inputs.BASE_DIR)) }}
 
       - name: Install dependencies
         run: npm ci
+        working-directory: ${{ inputs.BASE_DIR }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compress node_modules
         run: tar -czf node_modules.tar.gz node_modules
+        working-directory: ${{ inputs.BASE_DIR }}
 
       - name: Upload node_modules
         uses: actions/upload-artifact@v4
         with:
           name: node_modules
-          path: node_modules.tar.gz
+          path: ${{ inputs.BASE_DIR }}/node_modules.tar.gz
           retention-days: 1
