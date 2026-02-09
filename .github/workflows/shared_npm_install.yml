@@ -41,7 +41,8 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: '@dignityfalconer'
 
-      - run: node -v
+      - name: Confirm node version
+        run: node -v
         working-directory: ${{ inputs.BASE_DIR }}
 
       - name: Cache npm 
