@@ -2,6 +2,12 @@ name: Tests
 
 on:
   workflow_call:
+    inputs:
+      BASE_DIR:
+        description: "Optional base directory to run commands in"
+        required: false
+        type: string
+        default: "."
 
 permissions:
   contents: read
@@ -17,22 +23,31 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-      - run: node -v
+          node-version-file: ${{ format('{0}/.nvmrc', inputs.BASE_DIR) }}
+
+      - name: Confirm node version
+        run: node -v
+        working-directory: ${{ inputs.BASE_DIR }}
 
       - name: Download node_modules
         uses: actions/download-artifact@v4
         with:
           name: node_modules
+          path: ${{ inputs.BASE_DIR }}
 
       - name: Extract node_modules
         run: tar -xzf node_modules.tar.gz
+        working-directory: ${{ inputs.BASE_DIR }}
 
 #    - name: Run lint
 #      run: npm run lint
+#      working-directory: ${{ inputs.BASE_DIR }}
 #
 #    - name: Run formatting
 #      run: npm run format
+#      working-directory: ${{ inputs.BASE_DIR }}
 #
 #    - name: Run unit tests
 #      run: npm run test
+#      working-directory: ${{ inputs.BASE_DIR }}
+
