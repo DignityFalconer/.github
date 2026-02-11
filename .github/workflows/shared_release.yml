@@ -12,20 +12,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
 
+      - name: Confirm node version
+        run: node -v
+
+      - name: Checkout shared release config 
+        uses: actions/checkout@v4
+        with:
+          repository: dignityfalconer/.github
+          path: shared
+
       - name: Install release dependencies
-        working-directory: .github/release
+        working-directory: shared/release
         run: npm ci
 
       - name: Run semantic-release
-        working-directory: .github/release
+        working-directory: shared/release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
