@@ -37,8 +37,9 @@ jobs:
         run: npm ci
 
       - name: Run semantic-release
+        working-directory: config/version_tag_config
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: project-code
-        run: npx semantic-release --extends ../config/version_tag_config/release.config.js
+        run: npx semantic-release --no-ci --repository-url file://${{ github.workspace }}/project-code
+
