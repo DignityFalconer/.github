@@ -15,13 +15,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          path: project-code
           fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: 'project-code/.nvmrc'
+          node-version-file: '.nvmrc'
 
       - name: Confirm node version
         run: node -v
@@ -36,13 +35,14 @@ jobs:
         working-directory: config/version_tag_config
         run: npm ci
 
-      - name: Copy config fil into project
+      - name: Copy config file into project
         run: cp config/version_tag_config/release.config.cjs project-code/release.config.cjs
 
       - name: Run semantic-release
-        working-directory: config/version_tag_config
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release --no-ci --cwd ../../project-code --config ./release.config.cjs
-
+        run: | 
+          config/version_tag_config/node_modules/.bin/semantic-release \
+          --no-ci \
+          --config config/version_tag_config/release.config.cjs
