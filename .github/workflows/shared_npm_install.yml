@@ -28,8 +28,10 @@ jobs:
       artifact-name: node_modules
 
     steps:
-      - name: Checkout code (${{ inputs.TAG || github.ref_name }})
+      - name: Checkout code (${{ inputs.TAG || github.ref }})
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.TAG || github.ref }}
 
       - name: Apply environment variables
         shell: bash
