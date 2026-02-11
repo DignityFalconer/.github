@@ -26,11 +26,11 @@ jobs:
         run: node -v
 
       - name: Install shared version tag dependencies
-        working-directory: ${{ github.action_path }}/shared_version_tag_config
+        working-directory: ${{ github.action_path }}
         run: npm ci
 
       - name: Run semantic-release
-        working-directory: ${{ github.action_path }}/shared_version_tag_config
+        working-directory: ${{ github.action_path }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
