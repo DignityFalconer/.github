@@ -35,8 +35,8 @@ jobs:
         working-directory: config/version_tag_config
         run: npm ci
 
-      - name: Copy config file into project
-        run: cp config/version_tag_config/release.config.cjs project-code/release.config.cjs
+      # - name: Copy config file into project
+      #   run: cp config/version_tag_config/release.config.cjs ./release.config.cjs
 
       - name: Run semantic-release
         env:
