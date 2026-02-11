@@ -33,11 +33,11 @@ jobs:
           path: config
 
       - name: Install version tag dependencies
-        working-directory: shared/version_tag_config
+        working-directory: config/version_tag_config
         run: npm ci
 
       - name: Run semantic-release
-        working-directory: shared/version_tag_config
+        working-directory: config/version_tag_config
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
