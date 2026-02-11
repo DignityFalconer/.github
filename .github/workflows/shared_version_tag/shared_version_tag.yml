@@ -15,12 +15,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          path: project-code
           fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: 'project-code/.nvmrc'
 
       - name: Confirm node version
         run: node -v
@@ -34,4 +35,5 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+          GIT_CWD: ${{ github.workspace }}/project-code
+        run: npx semantic-release --repository-url ${{ github.workspace }}/project-code
