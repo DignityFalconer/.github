@@ -8,6 +8,10 @@ on:
         required: false
         type: string
         default: "."
+      TAG:
+        description: "Optional tag to checkout"
+        required: false
+        type: string
     secrets:
       FONTAWESOME_TOKEN:
         required: false
@@ -24,7 +28,7 @@ jobs:
       artifact-name: node_modules
 
     steps:
-      - name: Checkout code
+      - name: Checkout code (${{ inputs.TAG || github.ref_name }})
         uses: actions/checkout@v4
 
       - name: Apply environment variables
