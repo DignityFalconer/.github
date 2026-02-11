@@ -26,14 +26,19 @@ jobs:
       - name: Confirm node version
         run: node -v
 
-      - name: Install shared version tag dependencies
-        working-directory: ${{ github.action_path }}
+      - name: Checkout config
+        uses: actions/checkout@v4
+        with:
+          repository: dignityfalconer/.github
+          path: config
+
+      - name: Install version tag dependencies
+        working-directory: shared/version_tag_config
         run: npm ci
 
       - name: Run semantic-release
-        working-directory: ${{ github.action_path }}
+        working-directory: shared/version_tag_config
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIT_CWD: ${{ github.workspace }}/project-code
         run: npx semantic-release --repository-url ${{ github.workspace }}/project-code
