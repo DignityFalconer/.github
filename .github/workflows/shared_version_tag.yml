@@ -36,9 +36,12 @@ jobs:
         working-directory: config/version_tag_config
         run: npm ci
 
+      - name: Copy config fil into project
+        run: cp config/version_tag_config/release.config.cjs project-code/release.config.cjs
+
       - name: Run semantic-release
         working-directory: config/version_tag_config
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release --no-ci --cwd ../../project-code --extends ./release.config.cjs
+        run: npx semantic-release --no-ci --cwd ../../project-code
