@@ -2,20 +2,17 @@ name: Version Tag
 
 on:
   workflow_call:
-    secrets:
-      TOKEN:
-        required: true
     outputs:
       tag_name:
         description: "Created version tag"
-        value: ${{ jobs.release.outputs.tag_name }}
+        value: ${{ jobs.version.outputs.tag_name }}
 
 permissions:
   contents: write
   packages: read
 
 jobs:
-  release:
+  version:
     runs-on: ubuntu-latest
 
     outputs:
