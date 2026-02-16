@@ -49,27 +49,21 @@ jobs:
         run: |
           config/version_tag_config/node_modules/.bin/semantic-release --no-ci
 
-      - name: Capture created tag safely
+      - name: Capture created tag
         id: capture_tag
-        env:
-          GH_TOKEN: ${{ secrets.TOKEN }}
         run: |
-          echo "Finding release created for commit $GITHUB_SHA"
+          echo "Looking for tag pointing to commit $GITHUB_SHA"
 
-          RESPONSE=$(curl -s \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${GITHUB_REPOSITORY}/releases)
+          # Fetch tags
+          git fetch --tags --force
 
-          TAG=$(echo "$RESPONSE" | jq -r \
-            --arg SHA "$GITHUB_SHA" \
-            '.[] | select(.target_commitish == $SHA) | .tag_name' \
-            | head -n 1)
+          TAG=$(git tag --points-at $GITHUB_SHA | head -n 1)
 
-          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
-            echo "No release found for this commit."
+          if [ -z "$TAG" ]; then
+            echo "No tag found pointing to this commit."
             exit 1
           fi
 
           echo "Tag created: $TAG"
           echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+      
