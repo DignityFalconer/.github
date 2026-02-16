@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code (${{ github.ref }})
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -41,35 +41,35 @@ jobs:
       - name: Copy config file into project
         run: cp config/version_tag_config/release.config.cjs ./release.config.cjs
 
-      # 🔥 SAFE semantic-release execution with tag capture
-      - name: Run semantic-release (safe + capture tag)
-        id: semantic
+      - name: Run semantic-release
+        id: sr
         env:
           GH_TOKEN: ${{ secrets.TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.TOKEN }}
         run: |
-          node <<'EOF'
-          const semanticRelease = require('./config/version_tag_config/node_modules/semantic-release');
+          config/version_tag_config/node_modules/.bin/semantic-release --no-ci
 
-          (async () => {
-            const result = await semanticRelease({
-              ci: false
-            });
+      - name: Capture created tag safely
+        id: capture_tag
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          echo "Finding release created for commit $GITHUB_SHA"
 
-            if (!result || !result.nextRelease) {
-              console.log("No release created.");
-              process.exit(0);
-            }
+          RESPONSE=$(curl -s \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/releases)
 
-            const tag = result.nextRelease.gitTag;
-            console.log("Created tag:", tag);
+          TAG=$(echo "$RESPONSE" | jq -r \
+            --arg SHA "$GITHUB_SHA" \
+            '.[] | select(.target_commitish == $SHA) | .tag_name' \
+            | head -n 1)
 
-            require('fs').appendFileSync(
-              process.env.GITHUB_OUTPUT,
-              `tag_name=${tag}\n`
-            );
-          })().catch(err => {
-            console.error(err);
-            process.exit(1);
-          });
-          EOF
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+            echo "No release found for this commit."
+            exit 1
+          fi
+
+          echo "Tag created: $TAG"
+          echo "tag_name=$TAG" >> $GITHUB_OUTPUT
