@@ -46,11 +46,3 @@ jobs:
         run: | 
           config/version_tag_config/node_modules/.bin/semantic-release \
           --no-ci \
-
-      - name: Create GitHub Release
-        if: success() && steps.sr.outputs.next_release_version != ''
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.sr.outputs.next_release_version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
