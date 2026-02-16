@@ -18,6 +18,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
 
+    outputs:
+      tag_name: ${{ steps.capture_tag.outputs.tag_name }}
+
     steps:
       - name: Checkout code (${{ github.ref }})
         uses: actions/checkout@v4
