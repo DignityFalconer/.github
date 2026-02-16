@@ -1,5 +1,5 @@
 module.exports = {
-	branches: ['main', 'FAL-219/search-api-dev-pipeline'],
+	branches: ['main'],
 	plugins: [
 		[
 			'@semantic-release/commit-analyzer',
