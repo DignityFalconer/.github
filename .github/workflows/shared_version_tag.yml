@@ -2,6 +2,12 @@ name: Version Tag
 
 on:
   workflow_call:
+    inputs:
+      base_dir:
+        description: "Optional base directory to run commands in"
+        required: false
+        type: string
+        default: "."
     outputs:
       tag_name:
         description: "Created version tag"
@@ -27,7 +33,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ${{ format('{0}/.nvmrc', inputs.BASE_DIR) }}
 
       - name: Confirm node version
         run: node -v
