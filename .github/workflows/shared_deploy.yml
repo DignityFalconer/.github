@@ -11,6 +11,10 @@ on:
         description: "Tag to checkout"
         required: true
         type: string
+      DEPLOYMENT_CONFIG_FILENAME:
+        description: "The config filename for deployment"
+        required: true
+        type: string
     secrets:
       PROJECT:
         description: "The target project for deployment"
@@ -98,4 +102,4 @@ jobs:
             --quiet \
             --project "${{ secrets.PROJECT }}" \
             --version ${{ steps.convert_tag.outputs.gcp_tag }}
-            ${{ secrets.DEPLOYMENT_CONFIG_FILENAME }}
+            ${{ inputs.DEPLOYMENT_CONFIG_FILENAME }}
