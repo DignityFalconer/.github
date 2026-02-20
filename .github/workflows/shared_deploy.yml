@@ -1,0 +1,103 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      TAG:
+        description: "Tag to checkout"
+        required: true
+        type: string
+    secrets:
+      ENVIRONMENT:
+        description: "The target environment for deployment"
+        required: true
+      PROJECT:
+        description: "The target project for deployment"
+        required: true
+      DEPLOYMENT_CONFIG_FILENAME:
+        description: "The name of the deployment yaml config file"
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        description: "The workload identity provider specific for the environment"
+        required: true
+      SERVICE_ACCOUNT:
+        description: "The service account specific for the environment"
+        required: true
+
+permissions:
+  contents: write
+  packages: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ secrets.ENVIRONMENT }}
+
+    steps:
+      - name: Validate tag
+        id: validate_tag
+        run: |
+          TAG="${{ inputs.TAG }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error ::Invalid tag '$TAG'. Expected format: vMAJOR.MINOR.PATCH"
+            exit 1
+          fi
+          echo "Using tag: $TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Checkout code (${{ steps.validate_tag.outputs.tag }})
+        uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ steps.validate_tag.outputs.tag }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Confirm node version
+        run: node -v
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+
+      - name: Debug GitHub OIDC token
+        run: |
+          curl -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq .
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: '${{ secrets.GCP_PROJECT }}'
+
+      - name: Prepare .npmrc
+        run: |
+          rm -f .npmrc
+          echo "@dignityfalconer:registry=https://npm.pkg.github.com/" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+
+      - name: Create version file
+        run: |
+          VERSION="${{ steps.validate_tag.outputs.tag }}-dev"
+          npm run version -- --version=$VERSION
+
+      - name: Convert tag to App Engine tag
+        id: convert_tag
+        run: |
+          TAG="${{ steps.validate_tag.outputs.tag }}"
+          GCP_TAG="${TAG//./-}"
+          echo "Converted GCP_TAG: $GCP_TAG"
+          echo "gcp_tag=$GCP_TAG" >> $GITHUB_OUTPUT
+
+      - name: Deploying to DEV (${{ steps.convert_tag.outputs.gcp_tag }})  # TODO: need to change to --promote \ --stop-previous-version \
+        run: |
+          gcloud app deploy \
+            --no-promote \
+            --quiet \
+            --project "${{ secrets.PROJECT }}" \
+            --version ${{ steps.convert_tag.outputs.gcp_tag }}
+            ${{ secrets.DEPLOYMENT_CONFIG_FILENAME }}
