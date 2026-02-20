@@ -101,5 +101,5 @@ jobs:
             --no-promote \
             --quiet \
             --project "${{ secrets.PROJECT }}" \
-            --version ${{ steps.convert_tag.outputs.gcp_tag }}
+            --version ${{ steps.convert_tag.outputs.gcp_tag }} \
             ${{ inputs.DEPLOYMENT_CONFIG_FILENAME }}
