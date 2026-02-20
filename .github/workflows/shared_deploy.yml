@@ -50,8 +50,8 @@ jobs:
 
       - name: Checkout code (${{ steps.validate_tag.outputs.tag }})
         uses: actions/checkout@v4
-        with:
-          ref: refs/tags/${{ steps.validate_tag.outputs.tag }}
+#        with:
+#          ref: refs/tags/${{ steps.validate_tag.outputs.tag }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
