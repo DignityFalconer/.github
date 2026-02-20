@@ -3,14 +3,15 @@ name: Deploy
 on:
   workflow_call:
     inputs:
+      ENVIRONMENT:
+        description: "The target environment for deployment"
+        required: true
+        type: string
       TAG:
         description: "Tag to checkout"
         required: true
         type: string
     secrets:
-      ENVIRONMENT:
-        description: "The target environment for deployment"
-        required: true
       PROJECT:
         description: "The target project for deployment"
         required: true
