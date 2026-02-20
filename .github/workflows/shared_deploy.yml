@@ -15,9 +15,6 @@ on:
       PROJECT:
         description: "The target project for deployment"
         required: true
-      DEPLOYMENT_CONFIG_FILENAME:
-        description: "The name of the deployment yaml config file"
-        required: true
       WORKLOAD_IDENTITY_PROVIDER:
         description: "The workload identity provider specific for the environment"
         required: true
@@ -33,7 +30,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ secrets.ENVIRONMENT }}
+    environment: ${{ inputs.ENVIRONMENT }}
 
     steps:
       - name: Validate tag
@@ -83,7 +80,7 @@ jobs:
 
       - name: Create version file
         run: |
-          VERSION="${{ steps.validate_tag.outputs.tag }}-dev"
+          VERSION="${{ steps.validate_tag.outputs.tag }}-${{ inputs.ENVIRONMENT }}"
           npm run version -- --version=$VERSION
 
       - name: Convert tag to App Engine tag
