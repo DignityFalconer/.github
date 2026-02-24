@@ -132,7 +132,7 @@ jobs:
           echo "Converted GCP_TAG: $GCP_TAG"
           echo "gcp_tag=$GCP_TAG" >> $GITHUB_OUTPUT
 
-      - name: Deploying to DEV (${{ steps.convert_tag.outputs.gcp_tag }})  # TODO: need to change to --promote \ --stop-previous-version \
+      - name: Deploying to ${{ inputs.ENVIRONMENT }} (${{ steps.convert_tag.outputs.gcp_tag }})  # TODO: need to change to --promote \ --stop-previous-version \
         run: |
           gcloud builds submit \
             --project "${{ env.DEV_GCP_PROJECT }}" \
