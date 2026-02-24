@@ -11,8 +11,12 @@ on:
         description: "Tag to checkout"
         required: true
         type: string
+      DEPLOYMENT_CLOUDBUILD_FILENAME:
+        description: "The cloudbuild yaml filename for deployment"
+        required: true
+        type: string
       DEPLOYMENT_CONFIG_FILENAME:
-        description: "The config filename for deployment"
+        description: "The config yaml filename for deployment"
         required: true
         type: string
       BASE_DIR:
@@ -126,7 +130,7 @@ jobs:
           VERSION="${{ steps.validate_tag.outputs.tag }}-${{ inputs.ENVIRONMENT }}"
           node version --version=$VERSION
 
-      - name: Convert tag to App Engine tag
+      - name: Convert tag to GCP tag
         id: convert_tag
         run: |
           TAG="${{ steps.validate_tag.outputs.tag }}"
@@ -138,7 +142,7 @@ jobs:
         run: |
           gcloud builds submit \
             --project "${{ env.GCP_PROJECT }}" \
-            --config cloudbuild.yaml \
-            --substitutions=_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
+            --config ${{ inputs.DEPLOYMENT_CLOUDBUILD_FILENAME }} \
+            --substitutions=_REPO_NAME=${{ REPO_NAME }},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
             --region=europe-west2 \
             src
