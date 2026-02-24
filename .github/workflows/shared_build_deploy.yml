@@ -21,20 +21,20 @@ on:
         type: string
         default: "."
       SECRETS_CONFIG_NAME:
-        description: "The name of the stored config in GCP secrets manager"
-        required: true
+        description: "The name of the stored config file in GCP secrets manager"
+        required: false
         type: string
-      CONFIG_FILENAME:
-        description: "The config filename"
-        required: true
+      LOCAL_CONFIG_FULL_PATH:
+        description: "The full path locally to store the config file from GCP secrets manager"
+        required: false
         type: string
       SECRETS_SA_KEY_NAME:
         description: "The name of the stored Service Account key in GCP secrets manager"
-        required: true
+        required: false
         type: string
-      SA_KEY_FILENAME:
-        description: "The Service Account key filename"
-        required: true
+      LOCAL_SA_KEY_FULL_PATH:
+        description: "The full path locally to store the Service Account key file from GCP secrets manager"
+        required: false
         type: string
     secrets:
       PROJECT:
@@ -98,18 +98,20 @@ jobs:
           project_id: '${{ secrets.GCP_PROJECT }}'
 
       - name: Download config file
+        if: ${{ inputs.SECRETS_CONFIG_NAME && inputs.LOCAL_CONFIG_FULL_PATH }}
         run: |
           mkdir -p src/config
           gcloud secrets versions access latest \
             --secret="${{ inputs.SECRETS_CONFIG_NAME }}" \
-            > src/config/${{ inputs.CONFIG_FILENAME }}
+            > ${{ inputs.LOCAL_CONFIG_FULL_PATH }}
 
       - name: Download key file
+        if: ${{ inputs.SECRETS_SA_KEY_NAME && inputs.LOCAL_SA_KEY_FULL_PATH }}
         run: |
           mkdir -p src/service-keys/uk
           gcloud secrets versions access latest \
             --secret="${{ inputs.SECRETS_SA_KEY_NAME }}" \
-            > src/service-keys/uk/${{ inputs.SA_KEY_FILENAME }}
+            > ${{ inputs.LOCAL_SA_KEY_FULL_PATH }}
 
       - name: Prepare .npmrc
         working-directory: src
