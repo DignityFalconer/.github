@@ -137,7 +137,7 @@ jobs:
       - name: Deploying to ${{ inputs.ENVIRONMENT }} (${{ steps.convert_tag.outputs.gcp_tag }})  # TODO: need to change to --promote \ --stop-previous-version \
         run: |
           gcloud builds submit \
-            --project "${{ env.DEV_GCP_PROJECT }}" \
+            --project "${{ env.GCP_PROJECT }}" \
             --config cloudbuild.yaml \
             --substitutions=_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
             --region=europe-west2 \
