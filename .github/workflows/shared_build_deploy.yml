@@ -75,8 +75,8 @@ jobs:
 
       - name: Checkout code (${{ steps.validate_tag.outputs.tag }})
         uses: actions/checkout@v4
-#        with:
-#          ref: refs/tags/${{ steps.validate_tag.outputs.tag }}
+        with:
+          ref: refs/tags/${{ steps.validate_tag.outputs.tag }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -138,11 +138,11 @@ jobs:
           echo "Converted GCP_TAG: $GCP_TAG"
           echo "gcp_tag=$GCP_TAG" >> $GITHUB_OUTPUT
 
-      - name: Deploying to ${{ inputs.ENVIRONMENT }} (${{ steps.convert_tag.outputs.gcp_tag }})  # TODO: need to change to --promote \ --stop-previous-version \
+      - name: Deploying to ${{ inputs.ENVIRONMENT }} (${{ steps.convert_tag.outputs.gcp_tag }})
         run: |
           gcloud builds submit \
             --project "${{ env.GCP_PROJECT }}" \
             --config ${{ inputs.DEPLOYMENT_CLOUDBUILD_FILENAME }} \
             --substitutions=_REPO_NAME=${GITHUB_REPOSITORY##*/},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
             --region=europe-west2 \
-            src
+            ${{ inputs.BASE_DIR }}
