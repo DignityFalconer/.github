@@ -123,8 +123,8 @@ jobs:
       - name: Create version file
         working-directory: src
         run: |
-          VERSION="${{ steps.validate_tag.outputs.tag }}-dev"
-          npm run version -- --version=$VERSION
+          VERSION="${{ steps.validate_tag.outputs.tag }}-${{ inputs.ENVIRONMENT }}"
+          node version --version=$VERSION
 
       - name: Convert tag to App Engine tag
         id: convert_tag
