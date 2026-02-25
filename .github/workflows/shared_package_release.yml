@@ -15,7 +15,9 @@ on:
 
 permissions:
   contents: write
-  packages: read
+  packages: write
+  pull-requests: write
+  issues: write
 
 jobs:
   release:
