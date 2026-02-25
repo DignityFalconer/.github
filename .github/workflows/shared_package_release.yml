@@ -70,28 +70,8 @@ jobs:
 
       - name: Run semantic-release
         id: sr
-        working-directory: .
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           config/package_release_config/node_modules/.bin/semantic-release --no-ci
-
-      - name: Capture created tag
-        id: capture_tag
-        run: |
-          echo "Looking for tag pointing to commit $GITHUB_SHA"
-
-          # Fetch tags
-          git fetch --tags --force
-
-          TAG=$(git tag --points-at $GITHUB_SHA | head -n 1)
-
-          if [ -z "$TAG" ]; then
-            echo "No tag found pointing to this commit."
-            exit 1
-          fi
-
-          echo "Tag created: $TAG"
-          echo "tag_name=$TAG" >> $GITHUB_OUTPUT
-      
