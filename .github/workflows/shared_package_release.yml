@@ -45,11 +45,11 @@ jobs:
           path: config
 
       - name: Install version tag dependencies
-        working-directory: config/version_tag_config
+        working-directory: config/package_release_config
         run: npm ci
 
       - name: Copy config file into project
-        run: cp config/version_tag_config/release.config.cjs ./release.config.cjs
+        run: cp config/package_release_config/release.config.cjs ./release.config.cjs
 
       - name: Configure git auth
         env:
@@ -65,7 +65,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          config/version_tag_config/node_modules/.bin/semantic-release --no-ci
+          config/package_release_config/node_modules/.bin/semantic-release --no-ci
 
       - name: Capture created tag
         id: capture_tag
