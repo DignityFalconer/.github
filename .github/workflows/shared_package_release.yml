@@ -18,7 +18,7 @@ permissions:
   packages: read
 
 jobs:
-  version:
+  release:
     runs-on: ubuntu-latest
 
     outputs:
@@ -34,6 +34,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: ${{ format('{0}/.nvmrc', inputs.BASE_DIR) }}
+          registry-url: https://npm.pkg.github.com
+          scope: '@dignityfalconer'
 
       - name: Confirm node version
         run: node -v
