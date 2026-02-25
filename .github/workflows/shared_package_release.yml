@@ -65,6 +65,7 @@ jobs:
 
       - name: Run semantic-release
         id: sr
+        working-directory: .
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
