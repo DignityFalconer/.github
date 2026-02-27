@@ -104,18 +104,26 @@ jobs:
       - name: Download config file
         if: ${{ inputs.SECRETS_CONFIG_NAME && inputs.LOCAL_CONFIG_FULL_PATH }}
         run: |
-          mkdir -p src/config
+          CONFIG_PATH="${{ inputs.LOCAL_CONFIG_FULL_PATH }}"
+          CONFIG_DIR=$(dirname "CONFIG_PATH")
+
+          mkdir -p "CONFIG_DIR"
+
           gcloud secrets versions access latest \
             --secret="${{ inputs.SECRETS_CONFIG_NAME }}" \
-            > ${{ inputs.LOCAL_CONFIG_FULL_PATH }}
+            > "CONFIG_PATH"
 
       - name: Download key file
         if: ${{ inputs.SECRETS_SA_KEY_NAME && inputs.LOCAL_SA_KEY_FULL_PATH }}
         run: |
-          mkdir -p src/service-keys/uk
+          KEY_PATH="${{ inputs.LOCAL_SA_KEY_FULL_PATH }}"
+          KEY_DIR=$(dirname "$KEY_PATH")
+
+          mkdir -p "$KEY_DIR"
+
           gcloud secrets versions access latest \
             --secret="${{ inputs.SECRETS_SA_KEY_NAME }}" \
-            > ${{ inputs.LOCAL_SA_KEY_FULL_PATH }}
+            > "$KEY_PATH"
 
       - name: Prepare .npmrc
         working-directory: src
