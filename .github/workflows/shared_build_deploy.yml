@@ -126,14 +126,14 @@ jobs:
             > "$KEY_PATH"
 
       - name: Prepare .npmrc
-        working-directory: src
+        working-directory: ${{ inputs.BASE_DIR }}
         run: |
           rm -f .npmrc
           echo "@dignityfalconer:registry=https://npm.pkg.github.com/" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
 
       - name: Create version file
-        working-directory: src
+        working-directory: ${{ inputs.BASE_DIR }}
         run: |
           VERSION="${{ steps.validate_tag.outputs.tag }}-${{ inputs.ENVIRONMENT }}"
           node version --version=$VERSION
