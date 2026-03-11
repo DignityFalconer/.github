@@ -6,6 +6,12 @@ inputs:
   LOCAL_ENV_FILENAME:
     description: "Local filename of the environments config"
     required: true
+  GCP_SA_KEY_NAME:
+    description: "The name of the stored Service Account key in GCP"
+    required: true
+  LOCAL_SA_KEY_FULL_PATH:
+    description: "The full path locally to store the Service Account key file from GCP"
+    required: true
   LOCAL_ANGULAR_CONFIG_NAME:
     description: "The name of the environment project config in angular.json"
     required: true
@@ -32,6 +38,19 @@ runs:
         TAG="${{ inputs.TAG }}"
         GCP_TAG="${TAG//./-}"
         echo "gcp_tag=$GCP_TAG" >> $GITHUB_OUTPUT
+
+    - name: Download service account key
+      shell: bash
+      run: |
+        KEY_PATH="${{ inputs.LOCAL_SA_KEY_FULL_PATH }}"
+        KEY_DIR=$(dirname "$KEY_PATH")
+        
+        mkdir -p "$KEY_DIR"
+        
+        gcloud secrets versions access latest \
+        --secret="${{ inputs.SECRETS_SA_KEY_NAME }}" \
+        --project="${{ inputs.PROJECT }}" \
+        > "$KEY_PATH"
 
     - name: Deploy to ${{ inputs.ENVIRONMENT }}
       shell: bash
