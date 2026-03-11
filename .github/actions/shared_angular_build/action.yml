@@ -1,14 +1,13 @@
 name: "Build"
 inputs:
   GCP_ENV_SECRET_NAME:
-    description: 'Filename of the environments config stored on GCP'
+    description: "Filename of the environments config stored on GCP"
     required: true
   LOCAL_ENV_FILENAME:
-    description: 'Local filename of the environments config'
+    description: "Local filename of the environments config"
     required: true
-  GCP_SA_KEY_SECRET_NAME:
-    description: "Filename of the service account key stored on GCP"
-    required: true
+  LOCAL_ANGULAR_CONFIG_NAME:
+    description: "The name of the environment project config in angular.json"
   PROJECT:
     description: "The target project"
     required: true
@@ -29,14 +28,6 @@ runs:
           --secret="${{ inputs.GCP_ENV_SECRET_NAME }}" \
           > src/environments/${{ inputs.LOCAL_ENV_FILENAME }}
 
-    - name: Download service account key (DEV)
-      run: |
-        mkdir -p server/service-keys/uk
-        gcloud secrets versions access latest \
-          --secret="${{ inputs.GCP_SA_KEY_SECRET_NAME }}" \
-          --project="${{ inputs.GCP_PROJECT }}" \
-          > server/service-keys/uk/prod-dignity-dev.json
-
     - name: Create version file
       run: |
         cat <<EOF > src/environments/.env.ts
@@ -44,3 +35,10 @@ runs:
           static project_version = "${{ inputs.TAG }}-dev"
         }
         EOF
+
+    - name: Build app
+      run: |
+        export NG_BUILD_MAX_WORKERS=1
+        node --max_old_space_size=8192 ./node_modules/.bin/ng build \
+          --configuration=${{ inputs.LOCAL_ANGULAR_CONFIG_NAME }} \
+          --source-map=false
