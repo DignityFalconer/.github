@@ -30,7 +30,7 @@ runs:
     - name: Download service account key
       shell: bash
       run: |
-        KEY_PATH="${{ inputs.LOCAL_SA_KEY_FULL_PATH }}"
+        KEY_PATH="${{ inputs.SA_KEY_FULL_PATH }}"
         KEY_DIR=$(dirname "$KEY_PATH")
         
         mkdir -p "$KEY_DIR"
@@ -49,7 +49,7 @@ runs:
       shell: bash
       working-directory: server
       run: |
-        gcloud app deploy ${{ inputs.LOCAL_DEPLOYMENT_CONFIG_FILENAME }} \
+        gcloud app deploy ${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
           --no-promote \
           --quiet \
           --project "${{ inputs.PROJECT }}" \

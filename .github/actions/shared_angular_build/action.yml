@@ -25,7 +25,7 @@ runs:
           > src/environments/environment.ts
         gcloud secrets versions access latest \
           --secret="${{ inputs.GCP_ENV_SECRET_NAME }}" \
-          > src/environments/${{ inputs.LOCAL_ENV_FILENAME }}
+          > src/environments/${{ inputs.ENV_FILENAME }}
 
     - name: Create version file
       shell: bash
@@ -41,5 +41,5 @@ runs:
       run: |
         export NG_BUILD_MAX_WORKERS=1
         node --max_old_space_size=8192 ./node_modules/.bin/ng build \
-          --configuration=${{ inputs.LOCAL_ANGULAR_CONFIG_NAME }} \
+          --configuration=${{ inputs.ANGULAR_CONFIG_NAME }} \
           --source-map=false
