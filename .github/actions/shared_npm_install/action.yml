@@ -20,7 +20,7 @@ runs:
       run: |
         echo "Code to checkout: ${{ inputs.TAG || github.ref }}"
 
-    - name: Checkout code (${{ inputs.TAG || github.ref }})
+    - name: Checkout code
       uses: actions/checkout@v4
       with:
         ref: ${{ inputs.TAG || github.ref }}
