@@ -12,9 +12,6 @@ inputs:
   PROJECT:
     description: "The target project in GCP"
     required: true
-  ENVIRONMENT:
-    description: "The target environment for deployment"
-    required: true
   TAG:
     description: "Tagged version"
     required: true
@@ -43,7 +40,7 @@ runs:
         --project="${{ inputs.PROJECT }}" \
         > "$KEY_PATH"
 
-    - name: Deploy to ${{ inputs.ENVIRONMENT }}
+    - name: Deploy app
       shell: bash
       working-directory: server
       run: |
