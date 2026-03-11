@@ -40,6 +40,11 @@ runs:
         --project="${{ inputs.PROJECT }}" \
         > "$KEY_PATH"
 
+    - name: Install server dependencies
+      shell: bash
+      working-directory: server
+      run: npm ci
+
     - name: Deploy app
       shell: bash
       working-directory: server
