@@ -1,0 +1,44 @@
+name: "Deploy"
+inputs:
+  GCP_ENV_SECRET_NAME:
+    description: "Filename of the environments config stored on GCP"
+    required: true
+  LOCAL_ENV_FILENAME:
+    description: "Local filename of the environments config"
+    required: true
+  LOCAL_ANGULAR_CONFIG_NAME:
+    description: "The name of the environment project config in angular.json"
+    required: true
+  LOCAL_DEPLOYMENT_CONFIG_FILENAME:
+    description: "The config yaml filename for deployment"
+    required: true
+  PROJECT:
+    description: "The target project in GCP"
+    required: true
+  ENVIRONMENT:
+    description: "The target environment for deployment"
+    required: true
+  TAG:
+    description: "Tagged version"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Convert tag to App Engine version
+      id: convert_tag
+      shell: bash
+      run: |
+        TAG="${{ inputs.TAG }}"
+        GCP_TAG="${TAG//./-}"
+        echo "gcp_tag=$GCP_TAG" >> $GITHUB_OUTPUT
+
+    - name: Deploy to ${{ inputs.ENVIRONMENT }}
+      shell: bash
+      working-directory: server
+      run: |
+        gcloud app deploy ${{ inputs.LOCAL_DEPLOYMENT_CONFIG_FILENAME }} \
+          --no-promote \
+          --quiet \
+          --project "${{ inputs.PROJECT }}" \
+          --version ${{ inputs.TAG }}

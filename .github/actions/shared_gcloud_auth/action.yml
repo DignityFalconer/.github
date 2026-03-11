@@ -1,0 +1,25 @@
+name: "Google Cloud Auth"
+inputs:
+  WORKLOAD_IDENTITY_PROVIDER:
+    description: "The workload identity provider specific for the environment"
+    required: true
+  SERVICE_ACCOUNT:
+    description: "The service account specific for the environment"
+    required: true
+  PROJECT:
+    description: "The target project in GCP"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ inputs.WORKLOAD_IDENTITY_PROVIDER }}
+        service_account: ${{ inputs.SERVICE_ACCOUNT }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ inputs.PROJECT }}

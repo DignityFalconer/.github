@@ -8,6 +8,7 @@ inputs:
     required: true
   LOCAL_ANGULAR_CONFIG_NAME:
     description: "The name of the environment project config in angular.json"
+    required: true
   TAG:
     description: "Tagged version"
     required: true
