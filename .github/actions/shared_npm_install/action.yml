@@ -5,6 +5,9 @@ inputs:
     description: "Optional base directory to run commands in"
     required: false
     default: "."
+  TAG:
+    description: "Optional tag to checkout"
+    required: false
   FONTAWESOME_TOKEN:
     description: "Optional token for FontAwesome"
     required: false
@@ -12,11 +15,15 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Code ref
+      shell: bash
+      run: |
+        echo "Code to checkout: ${{ inputs.TAG || github.ref }}"
 
-    - name: Checkout repository
+    - name: Checkout code (${{ inputs.TAG || github.ref }})
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        ref: ${{ inputs.TAG || github.ref }}
 
     - name: Apply environment variables
       shell: bash
