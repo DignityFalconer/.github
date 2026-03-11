@@ -53,4 +53,4 @@ runs:
           --no-promote \
           --quiet \
           --project "${{ inputs.PROJECT }}" \
-          --version ${{ inputs.TAG }}
+          --version ${{ steps.convert_tag.outputs.gcp_tag }}
