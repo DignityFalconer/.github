@@ -16,6 +16,7 @@ runs:
   using: "composite"
   steps:
     - name: Download environment file
+      shell: bash
       run: |
         mkdir -p src/environments
         gcloud secrets versions access latest \
@@ -26,6 +27,7 @@ runs:
           > src/environments/${{ inputs.LOCAL_ENV_FILENAME }}
 
     - name: Create version file
+      shell: bash
       run: |
         cat <<EOF > src/environments/.env.ts
         export class env {
@@ -34,6 +36,7 @@ runs:
         EOF
 
     - name: Build app
+      shell: bash
       run: |
         export NG_BUILD_MAX_WORKERS=1
         node --max_old_space_size=8192 ./node_modules/.bin/ng build \
