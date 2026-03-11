@@ -1,4 +1,5 @@
 name: "Install"
+
 inputs:
   BASE_DIR:
     description: "Optional base directory to run commands in"
@@ -11,6 +12,7 @@ inputs:
 runs:
   using: "composite"
   steps:
+
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
@@ -28,26 +30,28 @@ runs:
       with:
         node-version-file: ${{ inputs.BASE_DIR }}/.nvmrc
         registry-url: https://npm.pkg.github.com
-        scope: '@dignityfalconer'
+        scope: "@dignityfalconer"
+        cache: "npm"
+        cache-dependency-path: ${{ inputs.BASE_DIR }}/package-lock.json
 
     - name: Confirm node version
       shell: bash
       run: node -v
       working-directory: ${{ inputs.BASE_DIR }}
 
-    - name: Cache npm registry
-      uses: actions/cache@v4
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-npm-${{ hashFiles(format('{0}/package-lock.json', inputs.BASE_DIR)) }}
-
+    # Cache node_modules for faster restores
     - name: Cache node_modules
+      id: cache-node-modules
       uses: actions/cache@v4
       with:
         path: ${{ inputs.BASE_DIR }}/node_modules
         key: ${{ runner.os }}-node-${{ hashFiles(format('{0}/package-lock.json', inputs.BASE_DIR)) }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
+    # Only run npm ci if cache missed
     - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
       shell: bash
       run: npm ci --legacy-peer-deps
       working-directory: ${{ inputs.BASE_DIR }}
