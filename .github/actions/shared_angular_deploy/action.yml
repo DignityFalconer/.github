@@ -6,8 +6,8 @@ inputs:
   SA_KEY_FULL_PATH:
     description: "The full path locally to store the Service Account key file from GCP"
     required: true
-  DEPLOYMENT_CONFIG_FILENAME:
-    description: "The config yaml filename for deployment"
+  DEPLOYMENT_CONFIG_FULL_PATH:
+    description: "The full path locally of the config yaml for deployment"
     required: true
   PROJECT:
     description: "The target project in GCP"
@@ -49,7 +49,7 @@ runs:
       shell: bash
       working-directory: server
       run: |
-        gcloud app deploy ${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
+        gcloud app deploy ${{ inputs.DEPLOYMENT_CONFIG_FULL_PATH }} \
           --no-promote \
           --quiet \
           --project "${{ inputs.PROJECT }}" \
