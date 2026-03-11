@@ -3,10 +3,10 @@ inputs:
   GCP_ENV_SECRET_NAME:
     description: "Filename of the environments config stored on GCP"
     required: true
-  LOCAL_ENV_FILENAME:
+  ENV_FILENAME:
     description: "Local filename of the environments config"
     required: true
-  LOCAL_ANGULAR_CONFIG_NAME:
+  ANGULAR_CONFIG_NAME:
     description: "The name of the environment project config in angular.json"
     required: true
   TAG:
