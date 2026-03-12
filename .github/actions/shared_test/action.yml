@@ -1,0 +1,26 @@
+name: "Test"
+inputs:
+  BASE_DIR:
+    description: "Optional base directory to run commands in"
+    required: false
+    default: "."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run lint
+      shell: bash
+      run: npm run lint
+      working-directory: ${{ inputs.BASE_DIR }}
+      continue-on-error: true # TODO: Remove
+
+#    - name: Run formatting
+#      shell: bash
+#      run: npm run format
+#      working-directory: ${{ inputs.BASE_DIR }}
+
+    - name: Run unit tests
+      shell: bash
+      run: npm run test
+      working-directory: ${{ inputs.BASE_DIR }}
+      continue-on-error: true # TODO: Remove
