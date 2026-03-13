@@ -2,10 +2,10 @@ name: "Deploy"
 inputs:
   GCP_SA_KEY_NAME:
     description: "The name of the stored Service Account key in GCP"
-    required: true
+    required: false
   SA_KEY_FULL_PATH:
     description: "The full path locally to store the Service Account key file from GCP"
-    required: true
+    required: false
   DEPLOYMENT_CONFIG_FULL_PATH:
     description: "The full path locally of the config yaml for deployment"
     required: true
@@ -29,6 +29,7 @@ runs:
 
     - name: Download service account key
       shell: bash
+      if: ${{ inputs.GCP_SA_KEY_NAME && inputs.SA_KEY_FULL_PATH }}
       run: |
         KEY_PATH="${{ inputs.SA_KEY_FULL_PATH }}"
         KEY_DIR=$(dirname "$KEY_PATH")
