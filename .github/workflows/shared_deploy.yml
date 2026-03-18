@@ -118,7 +118,7 @@ jobs:
         if: ${{ inputs.GCP_SERVICE_NAME }}
         run: |
           EXPECTED_VERSION="${{ steps.validate_tag.outputs.tag }}-${{ inputs.ENVIRONMENT }}"
-          URL="https://${{ steps.convert_tag.outputs.gcp_tag }}-dot-${{ inputs }}-dot-${{ secrets.UAT_GCP_PROJECT }}.nw.r.appspot.com/health"
+          URL="https://${{ steps.convert_tag.outputs.gcp_tag }}-dot-${{ inputs.GCP_SERVICE_NAME }}-dot-${{ secrets.UAT_GCP_PROJECT }}.nw.r.appspot.com/health"
 
           echo "Checking $URL"
           echo "Expected version: $EXPECTED_VERSION"
