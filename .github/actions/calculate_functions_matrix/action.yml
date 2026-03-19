@@ -4,6 +4,11 @@ description: Action created for cloud-functions-api to calculate which functions
 runs:
   using: composite
   steps:
+    - name: Checkout code (${{ github.ref }})
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+        
     - name: Calculate matrix
       shell: bash
       run: |
