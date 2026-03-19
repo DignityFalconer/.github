@@ -40,7 +40,7 @@ runs:
         
         DIFF=$(git diff --name-only ${firstCommit} HEAD)
         
-        ELEMENTS=""
+        ELEMENTS=" "
         
         for path in "${!MODULES_BY_PATHS[@]}"
         do
