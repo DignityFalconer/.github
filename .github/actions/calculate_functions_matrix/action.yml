@@ -1,6 +1,9 @@
 name: Calculate functions matrix
 description: Action created for cloud-functions-api to calculate which functions should be included in the workflow run
 
+outputs:
+  module: ${{ steps.calculate-matrix.output.module }}
+
 runs:
   using: composite
   steps:
@@ -10,6 +13,7 @@ runs:
         fetch-depth: 0
         
     - name: Calculate matrix
+      id: calculate-matrix
       shell: bash
       run: |
         declare -A MODULES_BY_PATHS=(
