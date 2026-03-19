@@ -26,8 +26,19 @@ runs:
           [src/environment-router/functions]="environment-router"
           [src/notifications/functions]="notifications"
         )
+
+        case '${{ github.event_name }}' in
+          push)
+            echo "PUSH"
+            firstCommit='${{ github.event.before }}'
+            ;;
+          pull_request)
+            echo "PR"
+            firstCommit='origin/main'
+            ;;
+        esac
         
-        DIFF=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+        DIFF=$(git diff --name-only ${firstCommit} HEAD)
         
         ELEMENTS=""
         
