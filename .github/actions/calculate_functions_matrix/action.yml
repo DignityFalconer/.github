@@ -2,7 +2,8 @@ name: Calculate functions matrix
 description: Action created for cloud-functions-api to calculate which functions should be included in the workflow run
 
 outputs:
-  module: ${{ steps.calculate-matrix.outputs.module }}
+  module: 
+    value: ${{ steps.calculate-matrix.outputs.module }}
 
 runs:
   using: composite
