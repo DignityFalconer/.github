@@ -1,0 +1,31 @@
+name: Calculate functions matrix
+description: Action created for cloud-functions-api to calculate which functions should be included in the workflow run
+
+runs:
+  using: composite
+  steps:
+    - name: Calculate matrix
+      shell: bash
+      run: |
+        declare -A MODULES_BY_PATHS=(
+          [functions]="main"
+          [src/automation/functions]="automation"
+          [src/dignity/functions]="dignity"
+          [src/elasticsearch/functions]="elasticsearch"
+          [src/elasticsearch/local]="elasticsearch-local"
+          [src/environment-router/functions]="environment-router"
+          [src/notifications/functions]="notifications"
+        )
+        
+        DIFF=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+        
+        ELEMENTS=""
+        
+        for path in "${!MODULES_BY_PATHS[@]}"
+        do
+          if [[ $( grep "^$path" <<< $DIFF ) ]]; then
+            ELEMENTS+="{\"name\": \"${MODULES_BY_PATHS[$path]}\", \"path\": \"${path}\"},"
+          fi
+        done
+        
+        echo "module=[${ELEMENTS::-1}]" >> "$GITHUB_OUTPUT"
