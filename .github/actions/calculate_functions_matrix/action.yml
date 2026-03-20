@@ -7,8 +7,7 @@ inputs:
     required: true
   final-ref:
     description: Reference to the final point of diff in git history (tag, commit hash, branch, etc.)
-    required: false
-    default: HEAD
+    required: true
 
 outputs:
   module: 
