@@ -1,18 +1,22 @@
 name: Calculate functions matrix
 description: Action created for cloud-functions-api to calculate which functions should be included in the workflow run
 
+inputs:
+  initial-ref:
+    description: Reference to the starting point of diff in git history (tag, commit hash, branch, etc.)
+    required: true
+  final-ref:
+    description: Reference to the final point of diff in git history (tag, commit hash, branch, etc.)
+    required: false
+    default: HEAD
+
 outputs:
   module: 
     value: ${{ steps.calculate-matrix.outputs.module }}
 
 runs:
   using: composite
-  steps:
-    - name: Checkout code (${{ github.ref }})
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-        
+  steps:        
     - name: Calculate matrix
       id: calculate-matrix
       shell: bash
@@ -26,19 +30,8 @@ runs:
           [src/environment-router/functions]="environment-router"
           [src/notifications/functions]="notifications"
         )
-
-        case '${{ github.event_name }}' in
-          push)
-            echo "PUSH"
-            firstCommit='${{ github.event.before }}'
-            ;;
-          pull_request)
-            echo "PR"
-            firstCommit='origin/main'
-            ;;
-        esac
         
-        DIFF=$(git diff --name-only ${firstCommit} HEAD)
+        DIFF=$(git diff --name-only ${{ inputs.initial-ref }} ${{ inputs.final-ref }})
         
         ELEMENTS=" "
         
