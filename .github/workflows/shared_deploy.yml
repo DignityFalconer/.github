@@ -18,7 +18,7 @@ on:
       GCP_SERVICE_NAME:
         description: "The name of this service as it appears in GCP"
         required: false
-        default: false
+        default: ""
         type: string
       AUTO_PROMOTE:
         description: "If this should be auto promoted to accept traffic"
