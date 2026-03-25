@@ -122,6 +122,9 @@ jobs:
           KEY_PATH="${{ inputs.LOCAL_SA_KEY_FULL_PATH }}"
           KEY_DIR=$(dirname "$KEY_PATH")
 
+          echo "directory = $KEY_DIR"
+          echo "full path = $KEY_PATH"
+          
           mkdir -p "$KEY_DIR"
 
           gcloud secrets versions access latest \
