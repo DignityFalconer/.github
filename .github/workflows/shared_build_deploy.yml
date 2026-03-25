@@ -107,6 +107,9 @@ jobs:
           CONFIG_PATH="${{ inputs.LOCAL_CONFIG_FULL_PATH }}"
           CONFIG_DIR=$(dirname "$CONFIG_PATH")
 
+          echo "directory = $CONFIG_DIR"
+          echo "full path = $CONFIG_PATH"
+          
           mkdir -p "$CONFIG_DIR"
 
           gcloud secrets versions access latest \
