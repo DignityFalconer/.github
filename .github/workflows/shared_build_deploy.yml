@@ -105,13 +105,13 @@ jobs:
         if: ${{ inputs.SECRETS_CONFIG_NAME && inputs.LOCAL_CONFIG_FULL_PATH }}
         run: |
           CONFIG_PATH="${{ inputs.LOCAL_CONFIG_FULL_PATH }}"
-          CONFIG_DIR=$(dirname "CONFIG_PATH")
+          CONFIG_DIR=$(dirname "$CONFIG_PATH")
 
-          mkdir -p "CONFIG_DIR"
+          mkdir -p "$CONFIG_DIR"
 
           gcloud secrets versions access latest \
             --secret="${{ inputs.SECRETS_CONFIG_NAME }}" \
-            > "CONFIG_PATH"
+            > "$CONFIG_PATH"
 
       - name: Download key file
         if: ${{ inputs.SECRETS_SA_KEY_NAME && inputs.LOCAL_SA_KEY_FULL_PATH }}
