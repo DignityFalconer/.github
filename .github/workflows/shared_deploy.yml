@@ -164,7 +164,7 @@ jobs:
         run: |
           echo "Health check failed, stopping version ${{ steps.convert_tag.outputs.gcp_tag }}"
           gcloud app versions stop ${{ steps.convert_tag.outputs.gcp_tag }} \
-            --service=search-api \
+            --service=${{ inputs.GCP_SERVICE_NAME }} \
             --project "${{ secrets.PROJECT }}" \
             --quiet
 
