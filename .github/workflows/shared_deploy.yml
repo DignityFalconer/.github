@@ -24,6 +24,11 @@ on:
         description: "If this should be auto promoted to accept traffic"
         required: false
         type: boolean
+      STOP_FAILED_VERSION:
+        description: "If false, skip gcloud app versions stop when health fails (e.g. App Engine Standard autoscaling)"
+        required: false
+        type: boolean
+        default: true
     secrets:
       PROJECT:
         description: "The target project for deployment"
@@ -155,7 +160,7 @@ jobs:
             --quiet
 
       - name: Stop deployed version on health failure
-        if: ${{ inputs.GCP_SERVICE_NAME && steps.health_check.outcome != 'success' }}
+        if: ${{ inputs.GCP_SERVICE_NAME != '' && inputs.STOP_FAILED_VERSION && steps.health_check.outcome != 'success' }}
         run: |
           echo "Health check failed, stopping version ${{ steps.convert_tag.outputs.gcp_tag }}"
           gcloud app versions stop ${{ steps.convert_tag.outputs.gcp_tag }} \
@@ -165,4 +170,10 @@ jobs:
 
           # Fail the workflow explicitly
           echo "Deployment failed because /health did not pass - version has been stopped"
+          exit 1
+          
+      - name: Fail if health check did not pass
+        if: ${{ steps.health_check.outcome == 'failure' }}
+        run: |
+          echo "::error ::Deployment failed because /health did not pass"
           exit 1
