@@ -25,10 +25,10 @@ on:
         required: false
         type: boolean
       STOP_FAILED_VERSION:
-        description: "If false, skip gcloud app versions stop when health fails (e.g. App Engine Standard autoscaling)"
+        description: "If true, stop the deployed version when /health fails. Use false when stop is unsafe (e.g. App Engine Standard UAT); Flex often uses true."
         required: false
         type: boolean
-        default: true
+        default: false
     secrets:
       PROJECT:
         description: "The target project for deployment"
@@ -160,7 +160,7 @@ jobs:
             --quiet
 
       - name: Stop deployed version on health failure
-        if: ${{ inputs.GCP_SERVICE_NAME != '' && inputs.STOP_FAILED_VERSION && steps.health_check.outcome != 'success' }}
+        if: ${{ inputs.GCP_SERVICE_NAME != '' && inputs.STOP_FAILED_VERSION == true && steps.health_check.outcome != 'success' }}
         run: |
           echo "Health check failed, stopping version ${{ steps.convert_tag.outputs.gcp_tag }}"
           gcloud app versions stop ${{ steps.convert_tag.outputs.gcp_tag }} \
