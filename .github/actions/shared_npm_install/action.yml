@@ -1,4 +1,5 @@
 name: "Install"
+description: "Checkout, set up Node, cache node_modules, and run npm ci (GitHub Packages)."
 
 inputs:
   BASE_DIR:
@@ -63,4 +64,4 @@ runs:
       run: npm ci --legacy-peer-deps
       working-directory: ${{ inputs.BASE_DIR }}
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NODE_AUTH_TOKEN: ${{ github.token }}
