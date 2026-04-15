@@ -85,7 +85,7 @@ runs:
       continue-on-error: true
       run: |
         EXPECTED_VERSION="${{ steps.validate_tag.outputs.tag }}-${{ inputs.ENVIRONMENT }}"
-        URL="https://${{ steps.convert_tag.outputs.gcp_tag }}-dot-${{ inputs.GCP_SERVICE_NAME }}-dot-${{ secrets.PROJECT }}.nw.r.appspot.com/health"
+        URL="https://${{ steps.convert_tag.outputs.gcp_tag }}-dot-${{ inputs.GCP_SERVICE_NAME }}-dot-${{ inputs.PROJECT }}.nw.r.appspot.com/health"
 
         echo "Checking $URL"
         echo "Expected version: $EXPECTED_VERSION"
@@ -118,7 +118,7 @@ runs:
         # Promote traffic entirely to the new version
         gcloud app services set-traffic ${{ inputs.GCP_SERVICE_NAME }} \
           --splits ${{ steps.convert_tag.outputs.gcp_tag }}=1 \
-          --project "${{ secrets.PROJECT }}" \
+          --project "${{ inputs.PROJECT }}" \
           --quiet
 
     - name: Stop deployed version on health failure
@@ -128,7 +128,7 @@ runs:
         echo "Health check failed, stopping version ${{ steps.convert_tag.outputs.gcp_tag }}"
         gcloud app versions stop ${{ steps.convert_tag.outputs.gcp_tag }} \
           --service=${{ inputs.GCP_SERVICE_NAME }} \
-          --project "${{ secrets.PROJECT }}" \
+          --project "${{ inputs.PROJECT }}" \
           --quiet
 
         # Fail the workflow explicitly
