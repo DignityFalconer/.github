@@ -18,6 +18,18 @@ inputs:
   ENVIRONMENT:
     description: "The target environment for deployment"
     required: true
+  GCP_SERVICE_NAME:
+    description: "The name of this service as it appears in GCP"
+    required: false
+    default: ""
+  AUTO_PROMOTE:
+    description: "If this should be auto promoted to accept traffic"
+    required: false
+    default: "false"
+  STOP_FAILED_VERSION:
+    description: "If true, stop the deployed version when /health fails. Use false when stop is unsafe (e.g. App Engine Standard UAT); Flex often uses true."
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -55,12 +67,77 @@ runs:
       working-directory: server
       run: npm ci
 
-    - name: Deploy app
+    - name: Deploy to ${{ inputs.ENVIRONMENT }} (${{ steps.convert_tag.outputs.gcp_tag }})
       shell: bash
       working-directory: server
       run: |
-        gcloud app deploy ${{ inputs.DEPLOYMENT_CONFIG_FULL_PATH }} \
+        gcloud app deploy \
           --no-promote \
           --quiet \
           --project "${{ inputs.PROJECT }}" \
-          --version ${{ steps.convert_tag.outputs.gcp_tag }}
+          --version ${{ steps.convert_tag.outputs.gcp_tag }} \
+          ${{ inputs.DEPLOYMENT_CONFIG_FULL_PATH }}
+
+    - name: Validate health version
+      shell: bash
+      id: health_check
+      if: ${{ inputs.GCP_SERVICE_NAME }}
+      continue-on-error: true
+      run: |
+        EXPECTED_VERSION="${{ steps.validate_tag.outputs.tag }}-${{ inputs.ENVIRONMENT }}"
+        URL="https://${{ steps.convert_tag.outputs.gcp_tag }}-dot-${{ inputs.GCP_SERVICE_NAME }}-dot-${{ secrets.PROJECT }}.nw.r.appspot.com/health"
+
+        echo "Checking $URL"
+        echo "Expected version: $EXPECTED_VERSION"
+
+        for i in {1..10}; do
+          RESPONSE=$(curl -s --max-time 3 $URL || true)
+          echo "Raw response: $RESPONSE"
+          STATUS=$(echo "$RESPONSE" | jq -r '.status // empty')
+          DEPLOYED_VERSION=$(echo "$RESPONSE" | jq -r '.version // empty')
+
+          echo "Attempt $i - status: $STATUS, version: $DEPLOYED_VERSION"
+
+          if [[ "$STATUS" == "ok" && "$DEPLOYED_VERSION" == "$EXPECTED_VERSION" ]]; then
+            echo "Health validation passed"
+            exit 0
+          fi
+
+          sleep 3
+        done
+
+        echo "::error ::Health validation failed"
+        exit 1
+
+    - name: Promote traffic to new version
+      shell: bash
+      if: ${{ inputs.AUTO_PROMOTE == 'true' && steps.health_check.outcome == 'success' }}
+      run: |
+        echo "Promoting traffic to version ${{ steps.convert_tag.outputs.gcp_tag }}"
+
+        # Promote traffic entirely to the new version
+        gcloud app services set-traffic ${{ inputs.GCP_SERVICE_NAME }} \
+          --splits ${{ steps.convert_tag.outputs.gcp_tag }}=1 \
+          --project "${{ secrets.PROJECT }}" \
+          --quiet
+
+    - name: Stop deployed version on health failure
+      shell: bash
+      if: ${{ inputs.GCP_SERVICE_NAME != '' && inputs.STOP_FAILED_VERSION == 'true' && steps.health_check.outcome != 'success' }}
+      run: |
+        echo "Health check failed, stopping version ${{ steps.convert_tag.outputs.gcp_tag }}"
+        gcloud app versions stop ${{ steps.convert_tag.outputs.gcp_tag }} \
+          --service=${{ inputs.GCP_SERVICE_NAME }} \
+          --project "${{ secrets.PROJECT }}" \
+          --quiet
+
+        # Fail the workflow explicitly
+        echo "Deployment failed because /health did not pass - version has been stopped"
+        exit 1
+
+    - name: Fail if health check did not pass
+      shell: bash
+      if: ${{ steps.health_check.outcome == 'failure' }}
+      run: |
+        echo "::error ::Deployment failed because /health did not pass"
+        exit 1
