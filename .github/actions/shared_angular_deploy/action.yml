@@ -85,7 +85,7 @@ runs:
       if: ${{ inputs.GCP_SERVICE_NAME }}
       continue-on-error: true
       run: |
-        EXPECTED_VERSION="${{ steps.validate_tag.outputs.tag }}-${{ inputs.ENVIRONMENT }}"
+        EXPECTED_VERSION="${{ inputs.TAG }}-${{ inputs.ENVIRONMENT }}"
         URL="https://${{ steps.convert_tag.outputs.gcp_tag }}-dot-${{ inputs.GCP_SERVICE_NAME }}-dot-${{ inputs.PROJECT }}.nw.r.appspot.com/health"
 
         echo "Checking $URL"
