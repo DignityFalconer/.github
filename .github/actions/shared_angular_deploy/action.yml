@@ -15,11 +15,20 @@ inputs:
   TAG:
     description: "Tagged version"
     required: true
+  ENVIRONMENT:
+    description: "The target environment for deployment"
+    required: true
 
 runs:
   using: "composite"
   steps:
-    - name: Convert tag to App Engine version
+    - name: Create version file
+      shell: bash
+      run: |
+        VERSION="${{ inputs.TAG }}-${{ inputs.ENVIRONMENT }}"
+        node version --version=$VERSION
+
+    - name: Convert tag to GCP tag
       id: convert_tag
       shell: bash
       run: |
