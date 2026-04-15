@@ -36,6 +36,7 @@ runs:
   steps:
     - name: Create version file
       shell: bash
+      working-directory: server
       run: |
         VERSION="${{ inputs.TAG }}-${{ inputs.ENVIRONMENT }}"
         node version --version=$VERSION
