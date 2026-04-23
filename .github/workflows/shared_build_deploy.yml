@@ -55,10 +55,11 @@ on:
         required: false
         type: boolean
         default: false
-      REPO_NAME:
-        description: "Optional override for repo name"
+      REPO_NAME_FROM_GCP_SERVICE_NAME:
+        description: "Optional override to use GCP_SERVICE_NAME instead of the official repo name"
         required: false
-        type: string
+        type: boolean
+        default: false
     secrets:
       PROJECT:
         description: "The target project for deployment - needed for both Cloud Run and App Engine services"
@@ -176,9 +177,9 @@ jobs:
 
       - name: Deploying to ${{ inputs.ENVIRONMENT }} (${{ steps.convert_tag.outputs.gcp_tag }})
         run: |
-          REPO_NAME="${{ inputs.REPO_NAME }}"
-    
-          if [ -z "$REPO_NAME" ]; then
+          if [ "${{ inputs.REPO_NAME_FROM_GCP_SERVICE_NAME }}" = "true" ] && [ -n "${{ inputs.GCP_SERVICE_NAME }}" ]; then
+            REPO_NAME="${{ inputs.GCP_SERVICE_NAME }}"
+          else
             REPO_NAME="${GITHUB_REPOSITORY##*/}"
           fi
       
