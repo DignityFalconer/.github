@@ -55,6 +55,10 @@ on:
         required: false
         type: boolean
         default: false
+      REPO_NAME:
+        description: "Optional override for repo name"
+        required: false
+        type: string
     secrets:
       PROJECT:
         description: "The target project for deployment - needed for both Cloud Run and App Engine services"
@@ -172,10 +176,16 @@ jobs:
 
       - name: Deploying to ${{ inputs.ENVIRONMENT }} (${{ steps.convert_tag.outputs.gcp_tag }})
         run: |
+          REPO_NAME="${{ inputs.REPO_NAME }}"
+    
+          if [ -z "$REPO_NAME" ]; then
+            REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          fi
+      
           gcloud builds submit \
             --project "${{ env.GCP_PROJECT }}" \
             --config ${{ inputs.DEPLOYMENT_CLOUDBUILD_FILENAME }} \
-            --substitutions=_REPO_NAME=${GITHUB_REPOSITORY##*/},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
+            --substitutions=_REPO_NAME=${REPO_NAME},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
             --region=europe-west2 \
             ${{ inputs.BASE_DIR }}
 
