@@ -55,11 +55,6 @@ on:
         required: false
         type: boolean
         default: false
-      REPO_NAME_FROM_GCP_SERVICE_NAME:
-        description: "Optional override to use GCP_SERVICE_NAME instead of the official repo name"
-        required: false
-        type: boolean
-        default: false
     secrets:
       PROJECT:
         description: "The target project for deployment - needed for both Cloud Run and App Engine services"
@@ -177,16 +172,16 @@ jobs:
 
       - name: Deploying to ${{ inputs.ENVIRONMENT }} (${{ steps.convert_tag.outputs.gcp_tag }})
         run: |
-          if [ "${{ inputs.REPO_NAME_FROM_GCP_SERVICE_NAME }}" = "true" ] && [ -n "${{ inputs.GCP_SERVICE_NAME }}" ]; then
-            REPO_NAME="${{ inputs.GCP_SERVICE_NAME }}"
+          if [ -n "${{ inputs.GCP_SERVICE_NAME }}" ]; then
+            SERVICE_NAME="${{ inputs.GCP_SERVICE_NAME }}"
           else
-            REPO_NAME="${GITHUB_REPOSITORY##*/}"
+            SERVICE_NAME="${GITHUB_REPOSITORY##*/}"
           fi
       
           gcloud builds submit \
-            --project "${{ env.GCP_PROJECT }}" \
+            --project "${{ secrets.PROJECT }}" \
             --config ${{ inputs.DEPLOYMENT_CLOUDBUILD_FILENAME }} \
-            --substitutions=_REPO_NAME=${REPO_NAME},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
+            --substitutions=_REPO_NAME=${REPO_NAME},_SERVICE_NAME=${SERVICE_NAME},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
             --region=europe-west2 \
             ${{ inputs.BASE_DIR }}
 
