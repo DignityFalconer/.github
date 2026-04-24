@@ -172,12 +172,14 @@ jobs:
 
       - name: Deploying to ${{ inputs.ENVIRONMENT }} (${{ steps.convert_tag.outputs.gcp_tag }})
         run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+
           if [ -n "${{ inputs.GCP_SERVICE_NAME }}" ]; then
             SERVICE_NAME="${{ inputs.GCP_SERVICE_NAME }}"
           else
-            SERVICE_NAME="${GITHUB_REPOSITORY##*/}"
+            SERVICE_NAME="$REPO_NAME"
           fi
-      
+
           gcloud builds submit \
             --project "${{ secrets.PROJECT }}" \
             --config ${{ inputs.DEPLOYMENT_CLOUDBUILD_FILENAME }} \
