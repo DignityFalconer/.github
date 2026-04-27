@@ -183,7 +183,7 @@ jobs:
           gcloud builds submit \
             --project "${{ secrets.PROJECT }}" \
             --config ${{ inputs.DEPLOYMENT_CLOUDBUILD_FILENAME }} \
-            --substitutions=_REPO_NAME=${REPO_NAME},_SERVICE_NAME=${SERVICE_NAME},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
+            --substitutions=_REPO_NAME=${REPO_NAME},_SERVICE_NAME=${SERVICE_NAME},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }},_ALLOW_LOOSE=true \
             --region=europe-west2 \
             ${{ inputs.BASE_DIR }}
 
