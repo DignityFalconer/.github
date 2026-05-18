@@ -55,6 +55,11 @@ on:
         required: false
         type: boolean
         default: false
+      CLOUDBUILD_EXTRA_SUBSTITUTIONS:
+        description: "Optional comma-separated substitutions appended to gcloud builds submit --substitutions (no leading comma). Use when Cloud Build must receive fully expanded values (e.g. Artifact Registry image URIs) that gcloud validates before server-side substitution."
+        required: false
+        default: ""
+        type: string
     secrets:
       PROJECT:
         description: "The target project for deployment - needed for both Cloud Run and App Engine services"
@@ -180,10 +185,16 @@ jobs:
             SERVICE_NAME="$REPO_NAME"
           fi
 
+          SUBST="_REPO_NAME=${REPO_NAME},_SERVICE_NAME=${SERVICE_NAME},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }}"
+          EXTRA='${{ inputs.CLOUDBUILD_EXTRA_SUBSTITUTIONS }}'
+          if [ -n "$EXTRA" ]; then
+            SUBST="${SUBST},${EXTRA}"
+          fi
+
           gcloud builds submit \
             --project "${{ secrets.PROJECT }}" \
             --config ${{ inputs.DEPLOYMENT_CLOUDBUILD_FILENAME }} \
-            --substitutions=_REPO_NAME=${REPO_NAME},_SERVICE_NAME=${SERVICE_NAME},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }} \
+            --substitutions="$SUBST" \
             --region=europe-west2 \
             ${{ inputs.BASE_DIR }}
 
