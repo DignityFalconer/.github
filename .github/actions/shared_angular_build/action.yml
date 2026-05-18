@@ -1,4 +1,5 @@
 name: "Build"
+description: "Build the Angular application"
 inputs:
   GCP_ENV_SECRET_NAME:
     description: "Filename of the environments config stored on GCP"
