@@ -55,11 +55,11 @@ on:
         required: false
         type: boolean
         default: false
-      CLOUDBUILD_EXTRA_SUBSTITUTIONS:
-        description: "Optional comma-separated substitutions appended to gcloud builds submit --substitutions (no leading comma). Use when Cloud Build must receive fully expanded values (e.g. Artifact Registry image URIs) that gcloud validates before server-side substitution."
+      APPEND_FIREBASE_DEPLOY_IMAGE_SUBSTITUTION:
+        description: "If true, append _FIREBASE_DEPLOY_IMAGE to gcloud builds submit using secrets.PROJECT (Artifact Registry path for pinned Firebase CLI image)."
         required: false
-        default: ""
-        type: string
+        default: false
+        type: boolean
     secrets:
       PROJECT:
         description: "The target project for deployment - needed for both Cloud Run and App Engine services"
@@ -186,9 +186,8 @@ jobs:
           fi
 
           SUBST="_REPO_NAME=${REPO_NAME},_SERVICE_NAME=${SERVICE_NAME},_VERSION=${{ steps.convert_tag.outputs.gcp_tag }},_APP_YAML=${{ inputs.DEPLOYMENT_CONFIG_FILENAME }}"
-          EXTRA='${{ inputs.CLOUDBUILD_EXTRA_SUBSTITUTIONS }}'
-          if [ -n "$EXTRA" ]; then
-            SUBST="${SUBST},${EXTRA}"
+          if [[ "${{ inputs.APPEND_FIREBASE_DEPLOY_IMAGE_SUBSTITUTION }}" == "true" ]]; then
+            SUBST="${SUBST},_FIREBASE_DEPLOY_IMAGE=europe-west2-docker.pkg.dev/${{ secrets.PROJECT }}/cloud-functions-gen2-shared-firebase-cli/firebase-deploy:node24-ft-15.10.0"
           fi
 
           gcloud builds submit \
