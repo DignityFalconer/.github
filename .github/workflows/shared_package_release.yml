@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: "."
+      run_build:
+        description: "Install dependencies and run `npm run build` before publishing (needed for packages that ship a built artifact, e.g. a dual CJS/ESM package)"
+        required: false
+        type: boolean
+        default: false
     outputs:
       tag_name:
         description: "Created version tag"
@@ -79,7 +84,19 @@ jobs:
           rm -f .npmrc
           echo "@dignityfalconer:registry=https://npm.pkg.github.com/" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
-          
+
+      - name: Install package dependencies
+        if: inputs.run_build == true
+        working-directory: ${{ inputs.base_dir }}
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build package
+        if: inputs.run_build == true
+        working-directory: ${{ inputs.base_dir }}
+        run: npm run build
+
       - name: Run semantic-release
         id: sr
         env:
