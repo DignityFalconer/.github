@@ -1,4 +1,4 @@
-name: Package release
+name: Package release (with build)
 
 on:
   workflow_call:
@@ -79,6 +79,16 @@ jobs:
           rm -f .npmrc
           echo "@dignityfalconer:registry=https://npm.pkg.github.com/" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+
+      - name: Install package dependencies
+        working-directory: ${{ inputs.base_dir }}
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build package
+        working-directory: ${{ inputs.base_dir }}
+        run: npm run build
 
       - name: Run semantic-release
         id: sr
