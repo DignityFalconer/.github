@@ -1,0 +1,69 @@
+name: Tests (pnpm)
+
+on:
+  workflow_call:
+    inputs:
+      BASE_DIR:
+        description: "Optional base directory to run commands in"
+        required: false
+        type: string
+        default: "."
+    secrets:
+      FONTAWESOME_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Apply environment variables
+        shell: bash
+        run: |
+          if [[ -n "${{ secrets.FONTAWESOME_TOKEN }}" ]]; then
+            echo "FONTAWESOME_TOKEN=${{ secrets.FONTAWESOME_TOKEN }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ format('{0}/.nvmrc', inputs.BASE_DIR) }}
+          registry-url: https://npm.pkg.github.com
+          scope: '@dignityfalconer'
+          cache: 'pnpm'
+          cache-dependency-path: ${{ format('{0}/pnpm-lock.yaml', inputs.BASE_DIR) }}
+
+      - name: Confirm node version
+        run: node -v
+        working-directory: ${{ inputs.BASE_DIR }}
+
+      # Restores the pnpm store cache warmed by the install job, so this
+      # resolves from the local store instead of re-downloading everything.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ inputs.BASE_DIR }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run lint
+        run: pnpm run lint
+        working-directory: ${{ inputs.BASE_DIR }}
+        continue-on-error: true # TODO: Remove
+
+#    - name: Run formatting
+#      run: pnpm run format
+#      working-directory: ${{ inputs.BASE_DIR }}
+#
+      - name: Run unit tests
+        run: pnpm run test
+        working-directory: ${{ inputs.BASE_DIR }}

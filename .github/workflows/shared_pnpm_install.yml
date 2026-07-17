@@ -1,0 +1,62 @@
+name: Install (pnpm)
+
+on:
+  workflow_call:
+    inputs:
+      BASE_DIR:
+        description: "Optional base directory to run commands in"
+        required: false
+        type: string
+        default: "."
+      TAG:
+        description: "Optional tag to checkout"
+        required: false
+        type: string
+    secrets:
+      FONTAWESOME_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code (${{ inputs.TAG || github.ref }})
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.TAG || github.ref }}
+
+      - name: Apply environment variables
+        shell: bash
+        run: |
+          if [[ -n "${{ secrets.FONTAWESOME_TOKEN }}" ]]; then
+            echo "FONTAWESOME_TOKEN=${{ secrets.FONTAWESOME_TOKEN }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ format('{0}/.nvmrc', inputs.BASE_DIR) }}
+          registry-url: https://npm.pkg.github.com
+          scope: '@dignityfalconer'
+          cache: 'pnpm'
+          cache-dependency-path: ${{ format('{0}/pnpm-lock.yaml', inputs.BASE_DIR) }}
+
+      - name: Confirm node version
+        run: node -v
+        working-directory: ${{ inputs.BASE_DIR }}
+
+      # Warms the pnpm store cache (saved by the setup-node post step) so
+      # downstream jobs can restore it and run `pnpm install` near-instantly.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ inputs.BASE_DIR }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
