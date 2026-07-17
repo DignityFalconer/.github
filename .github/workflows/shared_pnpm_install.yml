@@ -24,6 +24,9 @@ jobs:
   install:
     runs-on: ubuntu-latest
 
+    outputs:
+      artifact-name: node_modules
+
     steps:
       - name: Checkout code (${{ inputs.TAG || github.ref }})
         uses: actions/checkout@v4
@@ -53,10 +56,19 @@ jobs:
         run: node -v
         working-directory: ${{ inputs.BASE_DIR }}
 
-      # Warms the pnpm store cache (saved by the setup-node post step) so
-      # downstream jobs can restore it and run `pnpm install` near-instantly.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         working-directory: ${{ inputs.BASE_DIR }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compress node_modules
+        run: tar -czf node_modules.tar.gz node_modules
+        working-directory: ${{ inputs.BASE_DIR }}
+
+      - name: Upload node_modules
+        uses: actions/upload-artifact@v4
+        with:
+          name: node_modules
+          path: ${{ inputs.BASE_DIR }}/node_modules.tar.gz
+          retention-days: 1
