@@ -25,7 +25,6 @@ runs:
           [src/automation/functions]="automation"
           [src/dignity/functions]="dignity"
           [src/elasticsearch/functions]="elasticsearch"
-          [src/elasticsearch/local]="elasticsearch-local"
           [src/environment-router/functions]="environment-router"
           [src/notifications/functions]="notifications"
         )
