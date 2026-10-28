@@ -62,6 +62,27 @@ jobs:
           echo "Using tag: $TAG"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
+      # workflow_dispatch only takes a tag, not a branch, so a tag built from
+      # an integration/feature branch (e.g. a shared "observability" branch
+      # under active review) looks identical to a real release here. Without
+      # this check, AUTO_PROMOTE would flip live dev/uat traffic to it and
+      # silently replace whatever another team's feature build already had
+      # promoted there. "behind"/"identical" means the tagged commit is
+      # already part of main's history; "ahead"/"diverged" means it carries
+      # commits main doesn't have yet, i.e. it's not a real release.
+      - name: Check whether this tag was built from main
+        id: main_check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          STATUS=$(gh api "repos/${{ github.repository }}/compare/main...refs/tags/${{ steps.validate_tag.outputs.tag }}" --jq .status)
+          echo "Tag vs main: $STATUS"
+          if [[ "$STATUS" == "identical" || "$STATUS" == "behind" ]]; then
+            echo "is_main=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_main=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout code (${{ steps.validate_tag.outputs.tag }})
         uses: actions/checkout@v4
         with:
@@ -149,7 +170,7 @@ jobs:
           exit 1
 
       - name: Promote traffic to new version
-        if: ${{ inputs.AUTO_PROMOTE && steps.health_check.outcome == 'success' }}
+        if: ${{ inputs.AUTO_PROMOTE && steps.health_check.outcome == 'success' && steps.main_check.outputs.is_main == 'true' }}
         run: |
           echo "Promoting traffic to version ${{ steps.convert_tag.outputs.gcp_tag }}"
 
