@@ -5,7 +5,10 @@ module.exports = {
 			'@semantic-release/commit-analyzer',
 			{
 				releaseRules: [
-					// Fallback: if commit has no type, treat it as a patch release
+					// A commit starting "feat: " is a minor release.
+					{ type: 'feat', release: 'minor' },
+					// Every commit matches this rule, so anything not matched above is a patch.
+					// When several rules match, the highest release wins, so feat: still gives minor.
 					{ release: 'patch' }
 				]
 			}
